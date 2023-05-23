@@ -1,0 +1,37 @@
+package day_01
+
+import scala.annotation.tailrec
+object main:
+  @main def solvePuzzle(): Unit =
+    // main puzzle input //
+    val input: Vector[String] = io.Source.fromResource("day_01/input.txt").getLines.toVector
+    // sample input//
+  //  val input: Vector[String] = io.Source.fromResource("day_01/sample_input.txt").getLines.toVector
+
+    // Create a map of k = elf and v = total calories carried by each elf
+    val finalcalorieMap =
+      createElfCalorieMap(input, currentElfTotal = 0, currentElf = 1, calorieMap = Map.empty[Int, Int])
+
+    // Turn the map to a list so you can pic the top 1 for part one and the top 3 for part two
+    val finalCalorieList = finalcalorieMap.toList.map { case (_, calories) => calories }.sorted.reverse
+    val PartOne          = finalCalorieList.head
+    val PartTwo          = finalCalorieList.take(3).sum
+
+    println(s"The answer to Part One is: $PartOne")
+    println(s"The answer to Part Two is: $PartTwo")
+
+  @tailrec
+  def createElfCalorieMap(
+      calories: Vector[String],
+      currentElfTotal: Int,
+      currentElf: Int,
+      calorieMap: Map[Int, Int]
+  ): Map[Int, Int] =
+    if calories.isEmpty then calorieMap.updated(currentElf, currentElfTotal)
+    else
+      val currentPos     = calories.head
+      val nextElfTotal   = if currentPos.nonEmpty then currentElfTotal + currentPos.toInt else 0
+      val nextElf        = if currentPos.isEmpty then currentElf + 1 else currentElf
+      val nextCalorieMap = if currentPos.isEmpty then calorieMap.updated(currentElf, currentElfTotal) else calorieMap
+
+      createElfCalorieMap(calories.tail, nextElfTotal, nextElf, nextCalorieMap)
